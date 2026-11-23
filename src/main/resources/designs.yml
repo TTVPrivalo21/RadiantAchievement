@@ -1,0 +1,193 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║                     Visual designs                           ║
+# ╚══════════════════════════════════════════════════════════════╝
+#
+# glyphs: font sprites added to the generated resource pack (font: resource-pack.font, default minecraft:default).
+#   <glyph:name>    inserts the sprite
+#   <overlay:name>  inserts the sprite and moves back (zero width; for backgrounds)
+#   <space:px>      moves the cursor px pixels (negative = left)
+#   char     private-use unicode char ( - )
+#   texture  PNG inside assets/<namespace>/textures/<texture>
+#            Built-in pixel-art is painted automatically for: pip_<r>, badge_<r>, card_<r>, banner_<r>
+#            (r = common, rare, epic, secret, event) and gui_achievements_<all|unlocked|pending>.
+#            Drop your own PNG in plugins/RadiantAchievements/assets/textures/<texture> to replace any of them.
+#   height / ascent  bitmap provider values (ascent <= height)
+#
+# designs: every achievement uses one design (achievements.yml -> design: <name>).
+#   style          TOAST | BOSSBAR_OVERLAY | ACTIONBAR | TITLE | CENTER_BANNER
+#   duration-ticks how long the notification stays on screen (20 ticks = 1 s)
+#   title / subtitle / description  MiniMessage. Placeholders:
+#       <player> <achievement_name> <achievement_description> <achievement_id>
+#       <category> <progress> <target> <percent> <bar> <design>
+#   icon           material + custom-model-data / item-model / oraxen (TOAST icon and GUI icon when unlocked)
+#   frame          toast frame: TASK | GOAL | CHALLENGE
+#   bossbar        (BOSSBAR_OVERLAY)
+#       card       glyph drawn as a compact card behind title + description
+#       icon       glyph drawn inside the card, on the left
+#       hide-bar   hide the vanilla bar (uses resource-pack.transparent-bossbar-color)
+#       color / overlay / animate   used when hide-bar is false
+#   sound          vanilla or resource pack sound key; list allowed for layered sounds
+#   chat           announcement mode/scope + formats (achievement can override)
+
+config-version: 2
+
+glyphs:
+  # chat-sized badges (9x9)
+  pip_common: { char: "", texture: "font/pip_common.png", height: 8, ascent: 7 }
+  pip_rare:   { char: "", texture: "font/pip_rare.png",   height: 8, ascent: 7 }
+  pip_epic:   { char: "", texture: "font/pip_epic.png",   height: 8, ascent: 7 }
+  pip_secret: { char: "", texture: "font/pip_secret.png", height: 8, ascent: 7 }
+  pip_event:  { char: "", texture: "font/pip_event.png",  height: 8, ascent: 7 }
+  # medals (16x16) used inside boss bar cards
+  badge_common: { char: "", texture: "font/badge_common.png", height: 12, ascent: 9 }
+  badge_rare:   { char: "", texture: "font/badge_rare.png",   height: 12, ascent: 9 }
+  badge_epic:   { char: "", texture: "font/badge_epic.png",   height: 12, ascent: 9 }
+  badge_secret: { char: "", texture: "font/badge_secret.png", height: 12, ascent: 9 }
+  badge_event:  { char: "", texture: "font/badge_event.png",  height: 12, ascent: 9 }
+  # compact boss bar cards (240x16)
+  card_common: { char: "", texture: "font/card_common.png", height: 16, ascent: 10 }
+  card_rare:   { char: "", texture: "font/card_rare.png",   height: 16, ascent: 10 }
+  card_epic:   { char: "", texture: "font/card_epic.png",   height: 16, ascent: 10 }
+  card_secret: { char: "", texture: "font/card_secret.png", height: 16, ascent: 10 }
+  card_event:  { char: "", texture: "font/card_event.png",  height: 16, ascent: 10 }
+  # title ribbons (96x16, titles are rendered 4x)
+  banner_common: { char: "", texture: "font/banner_common.png", height: 14, ascent: 12 }
+  banner_rare:   { char: "", texture: "font/banner_rare.png",   height: 14, ascent: 12 }
+  banner_epic:   { char: "", texture: "font/banner_epic.png",   height: 14, ascent: 12 }
+  banner_secret: { char: "", texture: "font/banner_secret.png", height: 14, ascent: 12 }
+  banner_event:  { char: "", texture: "font/banner_event.png",  height: 14, ascent: 12 }
+  # menu backgrounds (256x256 canvas, 176x222 double chest; ascent 13 aligns it with the GUI top)
+  gui_achievements_all:      { char: "", texture: "font/gui_achievements_all.png",      height: 256, ascent: 13 }
+  gui_achievements_unlocked: { char: "", texture: "font/gui_achievements_unlocked.png", height: 256, ascent: 13 }
+  gui_achievements_pending:  { char: "", texture: "font/gui_achievements_pending.png",  height: 256, ascent: 13 }
+
+designs:
+  default:
+    style: TOAST
+    duration-ticks: 100
+    frame: TASK
+    title: "<gradient:#ffe08a:#e0a93a><achievement_name></gradient>"
+    subtitle: "<gray>¡Logro desbloqueado!"
+    description: "<gray><achievement_description>"
+    icon:
+      material: GOLD_INGOT
+      item-model: "radiant:badge/common"
+    sound:
+      - { sound: "minecraft:ui.toast.challenge_complete", volume: 0.8, pitch: 1.2 }
+      - { sound: "radiant:achievement.default", volume: 1.0, pitch: 1.0, delay-ticks: 2 }
+    chat:
+      mode: COMPACT
+      scope: PRIVATE
+      compact: "<glyph:pip_common> <gray><player> desbloqueó <hover:show_text:'<achievement_description>'><#ffe08a>[<achievement_name>]</#ffe08a></hover>"
+      designed:
+        - ""
+        - " <glyph:pip_common> <gradient:#ffe08a:#e0a93a><b>LOGRO DESBLOQUEADO</b></gradient>"
+        - " <hover:show_text:'<achievement_description>'><white><achievement_name></white></hover>"
+        - ""
+
+  rare:
+    style: BOSSBAR_OVERLAY
+    duration-ticks: 120
+    frame: GOAL
+    title: "<gradient:#9bd4ff:#3f8fe0><b><achievement_name></b></gradient>"
+    subtitle: ""
+    description: "<#9aa6b8><achievement_description>"
+    icon:
+      material: DIAMOND
+      item-model: "radiant:badge/rare"
+    bossbar:
+      card: card_rare
+      icon: badge_rare
+      hide-bar: true
+      color: BLUE
+      overlay: PROGRESS
+      animate: true
+    sound:
+      - { sound: "minecraft:block.amethyst_block.chime", volume: 1.0, pitch: 1.3 }
+      - { sound: "radiant:achievement.rare", volume: 1.0, pitch: 1.0 }
+    chat:
+      mode: DESIGNED
+      scope: PUBLIC
+      compact: "<glyph:pip_rare> <white><player></white> <gray>consiguió el logro raro <hover:show_text:'<achievement_description>'><#9bd4ff>[<achievement_name>]</#9bd4ff></hover>"
+      designed:
+        - "<#3f8fe0><st>                                                  </st>"
+        - " <glyph:pip_rare> <gradient:#9bd4ff:#3f8fe0><b>LOGRO RARO</b></gradient>"
+        - " <white><player></white> <gray>ha conseguido</gray> <hover:show_text:'<gray><achievement_description>'><#9bd4ff><u><achievement_name></u></#9bd4ff></hover>"
+        - "<#3f8fe0><st>                                                  </st>"
+
+  epic:
+    style: CENTER_BANNER
+    duration-ticks: 80
+    frame: CHALLENGE
+    title: "<glyph:banner_epic>"
+    subtitle: "<gradient:#e3a8ff:#a548e8><b><achievement_name></b></gradient>"
+    description: "<glyph:pip_epic> <gray><achievement_description>"
+    icon:
+      material: NETHER_STAR
+      item-model: "radiant:badge/epic"
+    sound:
+      - { sound: "minecraft:ui.toast.challenge_complete", volume: 1.0, pitch: 0.9 }
+      - { sound: "radiant:achievement.epic", volume: 1.0, pitch: 1.0 }
+      - { sound: "minecraft:entity.player.levelup", volume: 0.6, pitch: 0.8, delay-ticks: 6 }
+    chat:
+      mode: DESIGNED
+      scope: PUBLIC
+      compact: "<glyph:pip_epic> <white><player></white> <gray>desbloqueó el logro épico <hover:show_text:'<achievement_description>'><#e3a8ff>[<achievement_name>]</#e3a8ff></hover>"
+      designed:
+        - ""
+        - "<gradient:#a548e8:#e3a8ff><st>                                                  </st></gradient>"
+        - "  <glyph:pip_epic> <gradient:#e3a8ff:#a548e8><b>LOGRO ÉPICO</b></gradient> <glyph:pip_epic>"
+        - "  <white><player></white> <gray>ha desbloqueado <hover:show_text:'<achievement_description>'><#e3a8ff><b><achievement_name></b></#e3a8ff></hover>"
+        - "  <dark_gray><i>Pasa el ratón por encima para ver la descripción</i>"
+        - "<gradient:#e3a8ff:#a548e8><st>                                                  </st></gradient>"
+        - ""
+
+  secret:
+    style: BOSSBAR_OVERLAY
+    duration-ticks: 90
+    frame: CHALLENGE
+    title: "<#b8ffe6><b>SECRETO</b></#b8ffe6> <white><achievement_name>"
+    subtitle: ""
+    description: "<#7f8a9a><i><achievement_description>"
+    icon:
+      material: ENDER_EYE
+      item-model: "radiant:badge/secret"
+    bossbar:
+      card: card_secret
+      icon: badge_secret
+      hide-bar: true
+    sound:
+      sound: "minecraft:block.end_portal.spawn"
+      volume: 0.5
+      pitch: 1.6
+    chat:
+      mode: COMPACT
+      scope: PUBLIC
+      compact: "<glyph:pip_secret> <white><player></white> <gray>ha descubierto un <hover:show_text:'<achievement_name>'><#b8ffe6>logro secreto</#b8ffe6></hover><gray>..."
+      designed:
+        - "<glyph:pip_secret> <#b8ffe6><b>SECRETO</b> <white><player></white> <gray>descubrió <#b8ffe6><achievement_name>"
+
+  event:
+    style: BOSSBAR_OVERLAY
+    duration-ticks: 100
+    frame: GOAL
+    title: "<gradient:#ffc2d6:#f2588f><b>EVENTO</b></gradient> <white><achievement_name>"
+    subtitle: ""
+    description: "<#c9a3b3><achievement_description>"
+    icon:
+      material: FIREWORK_ROCKET
+      item-model: "radiant:badge/event"
+    bossbar:
+      card: card_event
+      icon: badge_event
+      hide-bar: true
+    sound:
+      sound: "minecraft:entity.firework_rocket.twinkle"
+      volume: 1.0
+      pitch: 1.0
+    chat:
+      mode: DESIGNED
+      scope: PUBLIC
+      compact: "<glyph:pip_event> <white><player></white> <gray>completó el logro de evento <hover:show_text:'<achievement_description>'><#f2588f>[<achievement_name>]</#f2588f></hover>"
+      designed:
+        - "<glyph:pip_event> <gradient:#ffc2d6:#f2588f><b>EVENTO</b></gradient> <white><player></white> <gray>→ <hover:show_text:'<achievement_description>'><#f2588f><achievement_name></#f2588f></hover>"

@@ -1,0 +1,225 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║                    RadiantAchievements                       ║
+# ║   All texts use MiniMessage: https://docs.advntr.dev/minimessage
+# ╚══════════════════════════════════════════════════════════════╝
+config-version: 2
+
+prefix: "<gradient:#ffd36b:#ff9f1c><b>Radiant</b></gradient><dark_gray> » </dark_gray>"
+
+# ── Storage ───────────────────────────────────────────────────────
+storage:
+  # YAML   -> one file per player in plugins/RadiantAchievements/playerdata/
+  # SQLITE -> local database file (single server)
+  # MYSQL  -> shared database (networks / multiple servers)
+  type: YAML
+  autosave-minutes: 5
+  table-prefix: "ra_"
+  sqlite-file: "data.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "minecraft"
+    username: "root"
+    password: ""
+    pool-size: 8
+    properties:
+      useSSL: "false"
+      characterEncoding: "utf8"
+      allowPublicKeyRetrieval: "true"
+
+# ── Progress tracking ─────────────────────────────────────────────
+tracking:
+  # How often (seconds) PLAYTIME achievements receive progress. Progress unit = minutes.
+  playtime-interval-seconds: 60
+  # How often (seconds) PERMISSION achievements are re-checked.
+  permission-check-seconds: 30
+  # Ignore all progress while the player is in creative / spectator mode.
+  ignore-creative: true
+  # Worlds where no progress is counted.
+  disabled-worlds: []
+
+# ── Notifications ─────────────────────────────────────────────────
+notifications:
+  # Design used when an achievement does not declare one.
+  default-design: default
+  # Ticks between two consecutive notifications for the same player.
+  queue-gap-ticks: 10
+  # Style used if TOAST cannot be shown (e.g. a future server removes the API used).
+  toast-fallback: TITLE
+  # Notify players about progress milestones of cumulative achievements (actionbar).
+  progress-actionbar:
+    enabled: true
+    # Percent steps that trigger the message (25 -> 25%, 50%, 75%).
+    step-percent: 25
+    format: "<gray><achievement_name> <dark_gray>» <yellow><progress></yellow><gray>/</gray><gold><target></gold> <dark_gray>(<percent>%)"
+
+# ── Chat announcements (defaults, designs and achievements can override) ──
+announcements:
+  # DESIGNED -> rich multi-line banner with hover
+  # COMPACT  -> one clean line
+  # NONE     -> no chat message
+  mode: DESIGNED
+  # PUBLIC -> whole server, PRIVATE -> only the player
+  scope: PUBLIC
+
+# ── GUI ───────────────────────────────────────────────────────────
+# 54-slot menu drawn over the glyph gui_achievements_<filter> (see designs.yml).
+# <background> = background glyph (zero width), <unlocked> <total> <percent> <page> <pages> <filter> <player>
+gui:
+  title: "<background><#ffe08a><b>Logros</b></#ffe08a> <#9a8a6a>(<unlocked>/<total>) · <filter>"
+  filter-names:
+    all: "Todos"
+    unlocked: "Desbloqueados"
+    pending: "Pendientes"
+  tab-active: "<white><b>▶ <name></b>"
+  tab-inactive: "<gray><name>"
+  tab-lore:
+    - "<dark_gray>Clic para filtrar"
+  previous-page: "<#ffe08a>« Página anterior <dark_gray>(<page>/<pages>)"
+  next-page: "<#ffe08a>Página siguiente » <dark_gray>(<page>/<pages>)"
+  info-name: "<#ffe08a><b><player></b>"
+  info-lore:
+    - "<gray>Logros: <white><unlocked></white><dark_gray>/</dark_gray><white><total>"
+    - "<gray>Completado: <#5be36b><percent>%"
+  empty-name: "<gray>No hay logros en este filtro"
+  empty-lore:
+    - "<dark_gray>Prueba con otra pestaña."
+  date-format: "dd/MM/yyyy HH:mm"
+  # Lore per state. Placeholders: achievement placeholders + <date> <requires>
+  states:
+    unlocked:
+      name: "<#5be36b>✔</#5be36b> <#ffe08a><achievement_name>"
+      lore:
+        - "<gray><achievement_description>"
+        - ""
+        - "<dark_gray><category>"
+        - "<#5be36b>Desbloqueado <dark_gray>· <date>"
+    in-progress:
+      name: "<#f2c14e>◆</#f2c14e> <white><achievement_name>"
+      lore:
+        - "<gray><achievement_description>"
+        - ""
+        - "<bar> <white><percent>%"
+        - "<gray>Progreso: <#f2c14e><progress></#f2c14e><dark_gray>/</dark_gray><white><target>"
+        - "<dark_gray><category>"
+    locked:
+      name: "<#8e8e9e>✖</#8e8e9e> <gray><achievement_name>"
+      lore:
+        - "<dark_gray><achievement_description>"
+        - ""
+        - "<bar> <gray><percent>%"
+        - "<dark_gray><category>"
+    secret:
+      name: "<#b8ffe6>?</#b8ffe6> <dark_gray><obf>????????</obf> <#7f8a9a>(Secreto)"
+      lore:
+        - "<gray>Sigue jugando para descubrirlo."
+  requires-lore:
+    - "<red>✘ <gray>Requiere: <requires>"
+  # Item icons. item-model textures are painted into the pack (1.21.2+); material is the fallback.
+  icons:
+    in-progress: { material: ORANGE_DYE, item-model: "radiant:gui/in_progress" }
+    locked:      { material: GRAY_DYE, item-model: "radiant:gui/locked" }
+    secret:      { material: BLACK_DYE, item-model: "radiant:gui/secret" }
+    previous:    { material: ARROW, item-model: "radiant:gui/previous" }
+    next:        { material: ARROW, item-model: "radiant:gui/next" }
+    tab-all:     { material: BOOK, item-model: "radiant:gui/tab_all" }
+    tab-unlocked: { material: LIME_DYE, item-model: "radiant:gui/tab_unlocked" }
+    tab-pending: { material: CLOCK, item-model: "radiant:gui/tab_pending" }
+    border:      { material: BLACK_STAINED_GLASS_PANE, item-model: "radiant:gui/blank" }
+    empty:       { material: BARRIER, item-model: "radiant:gui/blank" }
+
+# ── Resource pack ─────────────────────────────────────────────────
+resource-pack:
+  enabled: true
+  # Namespace used inside the pack (assets/<namespace>/...)
+  namespace: radiant
+  # Font that holds glyphs and spaces. minecraft:default makes them work in every text (chat, titles,
+  # boss bars, inventory titles, PlaceholderAPI). Forced to <namespace>:achievements when oraxen.mode = MERGE.
+  font: "minecraft:default"
+  generate-on-startup: true
+  # pack_format of the newest version you target + supported range (1.21 = 34 ... 26.x)
+  pack-format: 46
+  min-format: 34
+  max-format: 999
+  description: "<gradient:#ffe08a:#e0a93a>RadiantAchievements</gradient> <gray>resources"
+  # Boss bar colour made transparent by the pack (designs with bossbar.hide-bar use it). NONE to disable.
+  transparent-bossbar-color: WHITE
+  # Send the pack on join and after /ach pack.
+  send-on-join: true
+  # auto -> built-in HTTP server (works instantly on localhost and real servers)
+  # https://... -> direct download URL of an externally hosted resourcepack.zip
+  host: auto
+  http:
+    bind: "0.0.0.0"
+    port: 8164
+    # Domain/IP players use to reach the HTTP port. Empty = the address the player typed to connect.
+    # Set it when you are behind a proxy (Velocity/Bungee) or the HTTP port is on another address.
+    public-address: ""
+  # true = players who decline the pack are disconnected.
+  required: true
+  prompt: "<#ffe08a>RadiantAchievements</#ffe08a> <gray>usa un resource pack para iconos, insignias y sonidos."
+  # Custom sounds registered in assets/<namespace>/sounds.json (entries without .ogg files are skipped).
+  # Put your .ogg files in plugins/RadiantAchievements/assets/sounds/<path>.ogg
+  # and play them as "<namespace>:<key>" (e.g. radiant:achievement.epic).
+  sounds:
+    achievement.default:
+      files: ["achievement/default"]
+      subtitle: "Achievement unlocked"
+    achievement.rare:
+      files: ["achievement/rare"]
+      subtitle: "Rare achievement unlocked"
+    achievement.epic:
+      files: ["achievement/epic"]
+      subtitle: "Epic achievement unlocked"
+  # Oraxen interoperability:
+  #   STANDALONE -> RadiantAchievements sends its own pack
+  #   MERGE      -> copy our assets into plugins/Oraxen/pack/assets so Oraxen ships them inside its pack
+  oraxen:
+    mode: STANDALONE
+    reload-after-sync: true
+
+# ── Integrations (only used when the plugin is installed) ─────────
+hooks:
+  placeholderapi: true
+  vault: true
+  worldguard: true
+  mythicmobs: true
+  citizens: true
+  oraxen: true
+
+# ── Messages ──────────────────────────────────────────────────────
+messages:
+  no-permission: "<red>No tienes permiso para hacer eso."
+  player-only: "<red>Este comando solo puede usarlo un jugador."
+  player-not-found: "<red>Jugador <white><player></white> no encontrado."
+  achievement-not-found: "<red>El logro <white><id></white> no existe."
+  design-not-found: "<red>El diseño <white><design></white> no existe."
+  reloaded: "<green>Configuración recargada. <gray>(<achievements> logros, <designs> diseños)"
+  pack-generated: "<green>Resource pack regenerado <gray>(SHA-1: <hash>)</gray> y enviado a los jugadores conectados. <dark_gray><path>"
+  pack-failed: "<red>No se pudo generar el resource pack: <white><error>"
+  given: "<green>Logro <white><achievement_name></white> <green>dado a <white><player></white>."
+  already-unlocked: "<yellow><player></yellow> <gray>ya tiene el logro <white><achievement_name></white>."
+  taken: "<yellow>Logro <white><achievement_name></white> <yellow>quitado a <white><player></white>."
+  not-unlocked: "<gray><player> no tiene el logro <white><achievement_name></white>."
+  reset-one: "<yellow>Progreso de <white><achievement_name></white> <yellow>reiniciado para <white><player></white>."
+  reset-all: "<yellow>Todos los logros de <white><player></white> <yellow>han sido reiniciados."
+  progress-set: "<green>Progreso de <white><achievement_name></white> <green>para <white><player></white>: <yellow><progress></yellow>/<gold><target>"
+  offline-note: "<gray>(jugador desconectado: sin notificación ni recompensas)"
+  progress-header: "<gold><b>Progreso de <player></b> <gray>(<unlocked>/<total> · <percent>%)"
+  progress-line: "<dark_gray> • </dark_gray><status> <white><achievement_name></white> <gray><progress>/<target>"
+  progress-unlocked: "<green>✔"
+  progress-locked: "<red>✘"
+  preview-sound: "<gray>Reproduciendo <white><sound></white>."
+  invalid-number: "<red><value></red> no es un número válido."
+  help:
+    - "<gold><b>RadiantAchievements</b> <gray>— comandos"
+    - "<yellow>/ach</yellow> <gray>Abre el menú de logros"
+    - "<yellow>/ach progress [jugador]</yellow> <gray>Muestra el progreso"
+    - "<yellow>/ach give <jugador> <logro></yellow> <gray>Da un logro"
+    - "<yellow>/ach take <jugador> <logro></yellow> <gray>Quita un logro"
+    - "<yellow>/ach reset <jugador> [logro|all]</yellow> <gray>Reinicia logros"
+    - "<yellow>/ach setprogress <jugador> <logro> <valor></yellow> <gray>Fija el progreso"
+    - "<yellow>/ach preview <diseño|logro> [jugador]</yellow> <gray>Previsualiza un diseño"
+    - "<yellow>/ach sound <sonido> [volumen] [tono]</yellow> <gray>Prueba un sonido"
+    - "<yellow>/ach pack</yellow> <gray>Regenera el resource pack"
+    - "<yellow>/ach reload</yellow> <gray>Recarga la configuración"

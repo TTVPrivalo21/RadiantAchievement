@@ -1,0 +1,43 @@
+name: RadiantAchievements
+version: '${project.version}'
+main: dev.privalo.achievements.RadiantAchievements
+api-version: '1.21'
+description: '${project.description}'
+author: Privalo21
+website: https://github.com/TTVPrivalo21/RadiantAchievements
+softdepend: [PlaceholderAPI, Vault, WorldGuard, MythicMobs, Citizens, Oraxen]
+libraries:
+  - com.zaxxer:HikariCP:5.1.0
+
+commands:
+  achievements:
+    description: Open the achievements menu and manage achievements.
+    usage: /<command> [help]
+    aliases: [ach, logros, radiantachievements]
+    permission: radiantachievements.use
+
+permissions:
+  radiantachievements.use:
+    description: Open the achievement menu and see your own progress.
+    default: true
+  radiantachievements.progress.others:
+    description: See the progress of other players.
+    default: op
+  radiantachievements.admin:
+    description: Give, take and reset achievements.
+    default: op
+  radiantachievements.preview:
+    description: Preview designs and sounds.
+    default: op
+  radiantachievements.reload:
+    description: Reload configuration and regenerate the resource pack.
+    default: op
+  radiantachievements.*:
+    description: All RadiantAchievements permissions.
+    default: op
+    children:
+      radiantachievements.use: true
+      radiantachievements.progress.others: true
+      radiantachievements.admin: true
+      radiantachievements.preview: true
+      radiantachievements.reload: true

@@ -1,0 +1,272 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║                       Achievements                           ║
+# ╚══════════════════════════════════════════════════════════════╝
+#
+# <id>:
+#   name / description   MiniMessage
+#   design               design from designs.yml (default: notifications.default-design)
+#   category             free text, shown in the GUI and placeholders
+#   secret               hidden in the GUI until unlocked
+#   order                sort order in the GUI (lower first)
+#   requires             list of achievement ids that must be unlocked first
+#   icon                 overrides the design icon (material, custom-model-data, item-model, oraxen)
+#   trigger:
+#     type     JOIN | BLOCK_BREAK | BLOCK_PLACE | KILL_MOB | KILL_PLAYER | CRAFT | FISH | CONSUME
+#              PLAYTIME (minutes) | DISTANCE (blocks) | LOCATION | REGION_ENTER (WorldGuard)
+#              COMMAND | PERMISSION | LEVEL_REACH | DEATH | MYTHIC_KILL (MythicMobs)
+#              NPC_INTERACT (Citizens) | MANUAL (only API / commands)
+#     target   amount required (1 = instant achievement)
+#     filter   optional list: materials, entity types, commands, region ids, mythic mob ids, npc ids/names
+#     worlds   optional list of worlds where progress counts
+#   announce:  (optional, overrides the design)  mode: DESIGNED|COMPACT|NONE  scope: PUBLIC|PRIVATE
+#   sound:     (optional, overrides the design)  sound / volume / pitch / delay-ticks (single or list)
+#   rewards:   list of
+#     - type: console-command   command: "give <player> diamond 1"
+#     - type: player-command    command: "spawn"
+#     - type: money             amount: 250          (Vault)
+#     - type: xp                amount: 100          levels: false
+#     - type: item              material: DIAMOND    amount: 2  name: ""  lore: []  custom-model-data: 0  item-model: ""
+#     - type: message           message: "<green>..."
+#     - type: broadcast         message: "<gold>..."
+#     - type: effect            effect: speed        duration-ticks: 600  amplifier: 1
+#     - type: firework          color: "#ffd36b"     power: 1
+
+achievements:
+  first_join:
+    name: "Primeros pasos"
+    description: "Entra al servidor por primera vez."
+    category: general
+    order: 0
+    design: default
+    trigger:
+      type: JOIN
+    rewards:
+      - type: message
+        message: "<gray>Bienvenido. Usa <yellow>/logros</yellow> para ver todos los logros."
+
+  miner_100:
+    name: "Minero aprendiz"
+    description: "Rompe 100 bloques de piedra."
+    category: mining
+    order: 10
+    design: default
+    trigger:
+      type: BLOCK_BREAK
+      target: 100
+      filter: [STONE, DEEPSLATE, COBBLESTONE]
+    rewards:
+      - type: xp
+        amount: 150
+      - type: item
+        material: IRON_PICKAXE
+        amount: 1
+        name: "<gray>Pico del aprendiz"
+        lore: ["<dark_gray>Recompensa de logro"]
+
+  diamond_hunter:
+    name: "Cazador de diamantes"
+    description: "Mina 10 menas de diamante."
+    category: mining
+    order: 11
+    design: rare
+    requires: [miner_100]
+    icon:
+      material: DIAMOND_ORE
+    trigger:
+      type: BLOCK_BREAK
+      target: 10
+      filter: [DIAMOND_ORE, DEEPSLATE_DIAMOND_ORE]
+    rewards:
+      - type: money
+        amount: 500
+      - type: console-command
+        command: "give <player> diamond 3"
+
+  zombie_slayer:
+    name: "Exterminador"
+    description: "Mata 50 zombis."
+    category: combat
+    order: 20
+    design: default
+    trigger:
+      type: KILL_MOB
+      target: 50
+      filter: [ZOMBIE, HUSK, DROWNED, ZOMBIE_VILLAGER]
+    rewards:
+      - type: effect
+        effect: strength
+        duration-ticks: 1200
+        amplifier: 0
+
+  gladiator:
+    name: "Gladiador"
+    description: "Derrota a 10 jugadores."
+    category: combat
+    order: 21
+    design: epic
+    trigger:
+      type: KILL_PLAYER
+      target: 10
+    rewards:
+      - type: money
+        amount: 1000
+      - type: firework
+        color: "#b04ef2"
+        power: 1
+
+  crafter:
+    name: "Artesano"
+    description: "Craftea 64 antorchas."
+    category: crafting
+    order: 30
+    trigger:
+      type: CRAFT
+      target: 64
+      filter: [TORCH]
+
+  fisherman:
+    name: "Pescador paciente"
+    description: "Pesca 25 veces."
+    category: fishing
+    order: 40
+    trigger:
+      type: FISH
+      target: 25
+
+  veteran:
+    name: "Veterano"
+    description: "Juega 10 horas en el servidor."
+    category: general
+    order: 50
+    design: rare
+    trigger:
+      type: PLAYTIME
+      target: 600
+    rewards:
+      - type: console-command
+        command: "lp user <player> permission set radiant.veteran true"
+
+  traveler:
+    name: "Trotamundos"
+    description: "Recorre 10.000 bloques."
+    category: exploration
+    order: 60
+    trigger:
+      type: DISTANCE
+      target: 10000
+    rewards:
+      - type: xp
+        amount: 5
+        levels: true
+
+  world_edge:
+    name: "Fin del mundo"
+    description: "Alcanza las coordenadas 5000, 5000 del mundo principal."
+    category: exploration
+    order: 61
+    design: secret
+    secret: true
+    trigger:
+      type: LOCATION
+      location:
+        world: world
+        x: 5000
+        y: 64
+        z: 5000
+        radius: 50
+        ignore-y: true
+
+  spawn_visitor:
+    name: "Turista"
+    description: "Entra en la región de WorldGuard 'spawn'."
+    category: exploration
+    order: 62
+    trigger:
+      type: REGION_ENTER
+      filter: [spawn]
+
+  rules_reader:
+    name: "Ciudadano ejemplar"
+    description: "Lee las reglas con /rules."
+    category: general
+    order: 1
+    announce:
+      mode: COMPACT
+      scope: PRIVATE
+    trigger:
+      type: COMMAND
+      filter: ["/rules", "/reglas"]
+
+  vip:
+    name: "Apoyo al servidor"
+    description: "Consigue el rango VIP."
+    category: general
+    order: 2
+    design: epic
+    trigger:
+      type: PERMISSION
+      permission: "group.vip"
+
+  wise:
+    name: "Sabio"
+    description: "Alcanza el nivel 30 de experiencia."
+    category: general
+    order: 3
+    trigger:
+      type: LEVEL_REACH
+      target: 30
+
+  oops:
+    name: "Ups..."
+    description: "Muere por primera vez."
+    category: general
+    order: 4
+    secret: true
+    design: secret
+    trigger:
+      type: DEATH
+
+  golden_apple:
+    name: "Dieta dorada"
+    description: "Come 5 manzanas doradas."
+    category: general
+    order: 5
+    trigger:
+      type: CONSUME
+      target: 5
+      filter: [GOLDEN_APPLE, ENCHANTED_GOLDEN_APPLE]
+
+  boss_hunter:
+    name: "Cazajefes"
+    description: "Derrota al jefe de MythicMobs 'SkeletonKing'."
+    category: combat
+    order: 22
+    design: epic
+    trigger:
+      type: MYTHIC_KILL
+      filter: [SkeletonKing]
+
+  quest_giver:
+    name: "Curioso"
+    description: "Habla con el NPC Guía."
+    category: general
+    order: 6
+    trigger:
+      type: NPC_INTERACT
+      filter: ["Guía", "0"]
+
+  summer_event:
+    name: "Verano Radiante"
+    description: "Logro especial del evento de verano."
+    category: events
+    order: 100
+    design: event
+    trigger:
+      type: MANUAL
+    sound:
+      sound: "minecraft:entity.firework_rocket.large_blast"
+      volume: 1.0
+      pitch: 1.0
+    rewards:
+      - type: broadcast
+        message: "<gradient:#ff6b9e:#ffd36b><player> ha completado el evento de verano!</gradient>"
