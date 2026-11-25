@@ -30,7 +30,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.privalo.achievements.update.UpdateChecker;
+import dev.privalo.achievements.update.Versions;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -54,6 +61,7 @@ public final class RadiantAchievements extends JavaPlugin {
     private ResourcePackGenerator packGenerator;
     private PackHttpServer packServer;
     private PackSender packSender;
+    private UpdateChecker updates;
     private TriggerListener triggers;
     private TrackingTasks tracking;
     private NamespacedKey fireworkKey;
@@ -68,6 +76,7 @@ public final class RadiantAchievements extends JavaPlugin {
             return;
         }
         fireworkKey = new NamespacedKey(this, "reward_firework");
+        checkVersionChange();
 
         saveOrUpgrade("config.yml", CONFIG_VERSION);
         saveOrUpgrade("designs.yml", CONFIG_VERSION);
@@ -115,6 +124,8 @@ public final class RadiantAchievements extends JavaPlugin {
         pm.registerEvents(new ConnectionListener(this), this);
         pm.registerEvents(triggers, this);
         pm.registerEvents(new MenuListener(), this);
+        updates = new UpdateChecker(this);
+        pm.registerEvents(updates, this);
 
         PluginCommand command = getCommand("achievements");
         if (command != null) {
@@ -126,8 +137,40 @@ public final class RadiantAchievements extends JavaPlugin {
         tracking.start();
         data.loadOnlinePlayers();
         ready = true;
-        getLogger().info("Enabled on Minecraft " + ServerVersion.asString() + " — " + achievements.size()
-                + " achievements, " + designs.designs().size() + " designs, storage " + storage.name() + ".");
+        getLogger().info("Enabled v" + getPluginMeta().getVersion() + " on Minecraft " + ServerVersion.asString() + " — "
+                + achievements.size() + " achievements, " + designs.designs().size() + " designs, storage "
+                + storage.name() + ".");
+        updates.check();
+    }
+
+    /**
+     * Compares the jar version with plugins/RadiantAchievements/.last-version and prints a notice when it changed
+     * ("previous -> new", downgrade, or first install) before rewriting the file.
+     */
+    private void checkVersionChange() {
+        String current = getPluginMeta().getVersion();
+        Path file = getDataFolder().toPath().resolve(".last-version");
+        try {
+            Files.createDirectories(file.getParent());
+            if (!Files.isRegularFile(file)) {
+                getLogger().info("RadiantAchievements " + current + " instalado por primera vez.");
+            } else {
+                String previous = Files.readString(file, StandardCharsets.UTF_8).trim();
+                if (previous.equals(current)) {
+                    return;
+                }
+                String kind = !previous.isEmpty() && Versions.compare(previous, current) > 0 ? "DOWNGRADE" : "ACTUALIZACIÓN";
+                getLogger().warning("============================================================");
+                getLogger().warning(" RadiantAchievements " + kind + " detectada: "
+                        + (previous.isEmpty() ? "desconocida" : previous) + " -> " + current);
+                getLogger().warning(" Revisa el README (novedades). Las claves nuevas de config.yml");
+                getLogger().warning(" usan el valor por defecto del .jar hasta que las añadas.");
+                getLogger().warning("============================================================");
+            }
+            Files.writeString(file, current, StandardCharsets.UTF_8);
+        } catch (IOException ex) {
+            getLogger().warning("No se pudo leer/escribir .last-version: " + ex.getMessage());
+        }
     }
 
     @Override
@@ -156,6 +199,7 @@ public final class RadiantAchievements extends JavaPlugin {
         if (oldPort != settings.httpPort || !oldBind.equals(settings.httpBind) || !packServer.running()) {
             startPackServer();
         }
+        updates.check();
     }
 
     private void loadContent() {
@@ -295,6 +339,10 @@ public final class RadiantAchievements extends JavaPlugin {
 
     public PackSender packSender() {
         return packSender;
+    }
+
+    public UpdateChecker updates() {
+        return updates;
     }
 
     public TriggerListener triggers() {

@@ -115,7 +115,9 @@ public final class Settings {
     }
 
     public String message(String key) {
-        return config.getString("messages." + key, "<red>Missing message: " + key);
+        // No explicit default: keys missing from an old config.yml fall back to the jar's config.yml.
+        String value = config.getString("messages." + key);
+        return value != null ? value : "<red>Missing message: " + key;
     }
 
     public List<String> messageList(String key) {

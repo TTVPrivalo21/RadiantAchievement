@@ -6,6 +6,21 @@ config-version: 2
 
 prefix: "<gradient:#ffd36b:#ff9f1c><b>Radiant</b></gradient><dark_gray> » </dark_gray>"
 
+# ── Update checker ────────────────────────────────────────────────
+# Asynchronous check on startup and on /ach reload (5 s timeout). Without internet, with a private repo
+# or with no releases yet (404) it stays silent. Keys missing from an old config.yml use these defaults.
+update-checker:
+  enabled: true
+  # "github" (GitHub Releases: tag_name + html_url) or "spigot" (SpigotMC through api.spiget.org)
+  source: "github"
+  github-repo: "TTVPrivalo21/RadiantAchievements"
+  # Author profile shown in the console notice when source = spigot
+  spigot-author-url: "https://www.spigotmc.org/resources/authors/thekillerv2.1619961/"
+  # Numeric resource id (the number at the end of the resource URL). 0 = Spigot check disabled
+  spigot-resource-id: 0
+  # Clickable notice for players with radiantachievements.admin when they join
+  notify-admins-on-join: true
+
 # ── Storage ───────────────────────────────────────────────────────
 storage:
   # YAML   -> one file per player in plugins/RadiantAchievements/playerdata/
@@ -211,6 +226,8 @@ messages:
   progress-locked: "<red>✘"
   preview-sound: "<gray>Reproduciendo <white><sound></white>."
   invalid-number: "<red><value></red> no es un número válido."
+  # <installed> <latest> <source> <url>; <download>...</download> opens the download link
+  update-available: "<#ffe08a>⬆ Nueva versión de RadiantAchievements: <white><installed></white> <dark_gray>→</dark_gray> <#ff9f1c><b><latest></b></#ff9f1c> <dark_gray>(<source>)</dark_gray> <download><hover:show_text:'<#ffe08a>Abrir <url>'><#ff9f1c><u>[Descargar]</u></#ff9f1c></hover></download>"
   help:
     - "<gold><b>RadiantAchievements</b> <gray>— comandos"
     - "<yellow>/ach</yellow> <gray>Abre el menú de logros"

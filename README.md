@@ -263,6 +263,41 @@ Dependencia en tu `plugin.yml`: `depend: [RadiantAchievements]` (o `softdepend`)
 
 ---
 
+## Versiones y actualizaciones
+
+### Aviso al cambiar el `.jar`
+
+La versión vive solo en `pom.xml` (actual: **1.1.0**); `plugin.yml` la recibe con `${project.version}` y el build genera `target/RadiantAchievements-<version>.jar`, borrando los jars de otras versiones.
+
+Al arrancar, el plugin compara la versión del jar con `plugins/RadiantAchievements/.last-version`:
+
+- No existe → `RadiantAchievements 1.1.0 instalado por primera vez.`
+- Es distinta → bloque en consola `ACTUALIZACIÓN detectada: 1.0.0 -> 1.1.0` (o `DOWNGRADE` si la versión baja).
+
+Solo después se reescribe `.last-version`.
+
+### Update checker (GitHub Releases / SpigotMC)
+
+```yaml
+update-checker:
+  enabled: true
+  source: "github"                 # "github" o "spigot"
+  github-repo: "TTVPrivalo21/RadiantAchievements"
+  spigot-author-url: "https://www.spigotmc.org/resources/authors/thekillerv2.1619961/"
+  spigot-resource-id: 0            # ID del recurso en SpigotMC (0 = desactivado)
+  notify-admins-on-join: true
+```
+
+- **github:** consulta `https://api.github.com/repos/<repo>/releases/latest` (`tag_name` y `html_url`).
+- **spigot:** con un ID mayor que 0 consulta `https://api.spiget.org/v2/resources/<id>/versions/latest` (`name`); el enlace es la página del recurso y la consola muestra también el perfil de autor.
+- La consulta es **100 % asíncrona** con `java.net.http.HttpClient` (timeout de 5 s, cabecera `User-Agent`), al arrancar y con `/ach reload`.
+- Las versiones se comparan como SemVer: `v1.2.0` → `1.2.0`, `1.10.0 > 1.9.9`, `1.2.0 > 1.2.0-beta.1`.
+- Si hay una versión más nueva se imprime un bloque en consola con la versión instalada, la nueva y el enlace. Los jugadores con `radiantachievements.admin` reciben al entrar `messages.update-available`, con un `[Descargar]` clicable.
+- Sin internet, con el repo privado, sin releases (404) o ante cualquier fallo, no imprime nada (ni stacktraces).
+- Si conservas un `config.yml` antiguo sin esta sección, se usan los valores por defecto del `.jar`.
+
+---
+
 ## Licencia
 
 MIT — ver [LICENSE](LICENSE).
